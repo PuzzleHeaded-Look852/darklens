@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DarkLens Demo</title>
+<style>
+:root{--ink:#1b2430;--slate:#2b3a4a;--muted:#5b6472;--line:#e2e8f0;--bg:#f4f6f9;--card:#fff;--orange:#e8590c;--green:#2f855a;--red:#e53e3e;--blue:#2b6cb0;--purple:#6b46c1;--amber:#b7791f}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:var(--bg);color:var(--ink);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{background:var(--ink);color:#fff;padding:12px 20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+header h1{margin:0;font-size:20px;letter-spacing:.2px}
+header h1 span{color:var(--orange)}
+.stat{display:flex;flex-direction:column;line-height:1.1}
+.stat b{font-size:18px;color:var(--orange)} .stat small{font-size:11px;color:#a0aec0}
+header .note{font-size:12px;color:#cbd5e0;margin-left:auto;max-width:360px}
+.tabs{display:flex;gap:6px}
+.tabs button{background:transparent;border:1px solid #4a5568;color:#e2e8f0;padding:6px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+.tabs button.on{background:var(--orange);border-color:var(--orange);color:#fff}
+main{flex:1;display:flex;min-height:0}
+aside{width:250px;background:#fff;border-right:1px solid var(--line);overflow:auto;flex-shrink:0}
+aside input{width:calc(100% - 20px);margin:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px}
+.site{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;border-left:3px solid transparent;font-size:13px}
+.site:hover{background:#f7fafc}.site.on{background:#fff4ec;border-left-color:var(--orange)}
+.dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.15)}
+.site .meta{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
+.content{flex:1;display:flex;flex-direction:column;min-width:0;padding:14px 16px;gap:10px;overflow:auto}
+.row{display:flex;gap:14px;min-height:0}
+.jlist{display:flex;flex-wrap:wrap;gap:6px}
+.jchip{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;font-size:12px;cursor:pointer;display:flex;gap:5px;align-items:center}
+.jchip.on{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.jchip .ok{color:var(--green)} .jchip .bad{color:var(--amber)}
+.code{font-size:10px;font-weight:700;background:#edf2f7;border-radius:4px;padding:1px 4px;color:var(--slate)}
+.viewer{flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.steps{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.steps button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px}
+.steps button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.steps .spacer{flex:1}
+.toggle{font-size:12px;display:flex;align-items:center;gap:4px;color:var(--slate)}
+.frame{position:relative;overflow:hidden;border-radius:8px;border:1px solid var(--line);background:#eee}
+.frame iframe,.frame .ov{position:absolute;left:0;top:0;width:1280px;height:900px;border:0;transform-origin:0 0}
+.frame .ov{pointer-events:none}
+.box{position:absolute;border:3px solid var(--red);border-radius:4px}
+.box span{position:absolute;left:calc(100% + 6px);top:-3px;background:var(--red);color:#fff;font:600 14px/1.2 -apple-system,sans-serif;padding:3px 7px;border-radius:4px;white-space:nowrap}
+.box.gt{border:3px dashed var(--green)} .box.gt span{background:var(--green);left:auto;right:calc(100% + 6px)}
+.panel{width:360px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.card h3{margin:0 0 8px;font-size:14px}
+.f{border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-bottom:8px;font-size:12.5px;line-height:1.4}
+.f .top{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.f .name{font-weight:700;font-size:13.5px}
+.sev{font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:999px;color:#fff}
+.sev.High{background:#c53030}.sev.Medium{background:var(--amber)}.sev.Low{background:#718096}
+.verdict{margin-left:auto;font-size:11px;font-weight:700}
+.verdict.ok{color:var(--green)} .verdict.bad{color:var(--red)}
+.f .why{color:var(--slate)} .f .cl{color:var(--muted);font-size:11px;margin-top:3px}
+.f.flow{border-color:#d6bcfa;background:#faf5ff}
+.f.miss{border-style:dashed;background:#fffaf0}
+.empty{color:var(--muted);font-size:12.5px}
+.attn{display:grid;gap:2px;font-size:10px;margin-top:6px}
+.attn div{height:22px;display:flex;align-items:center;justify-content:center;border-radius:3px}
+.legend{font-size:11px;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:13px;background:#fff;border-radius:12px;overflow:hidden}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+th{background:#edf2f7;font-size:12px;color:var(--slate);position:sticky;top:0}
+tr.click{cursor:pointer} tr.click:hover{background:#fff4ec}
+.bar{height:8px;background:#edf2f7;border-radius:4px;overflow:hidden;width:120px;display:inline-block;vertical-align:middle}
+.bar i{display:block;height:100%;background:var(--green)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.kpi b{font-size:26px;color:var(--orange);display:block}.kpi small{color:var(--muted);font-size:12px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Dark<span>Lens</span> · Test-site explorer</h1>
+  <div class="tabs"><button id="tOver" class="on">Overview of all 30 sites</button><button id="tSite">Inspect a site</button></div>
+  <div class="stat"><b id="hScr"></b><small>screen-level F1</small></div>
+  <div class="stat"><b id="hFlow"></b><small>journey-level F1</small></div>
+  <div class="note">Every site is scored by a DarkLens model that never saw that site during training (5-fold site-wise cross-validation).</div>
+</header>
+<main>
+  <aside id="aside" class="hidden"><input id="q" placeholder="Search sites…"><div id="sites"></div></aside>
+  <section class="content" id="over"></section>
+  <section class="content hidden" id="insp">
+    <div><h2 id="sTitle" style="margin:0 0 6px;font-size:18px"></h2><div class="jlist" id="jlist"></div></div>
+    <div class="row" style="flex:1">
+      <div class="viewer">
+        <div class="steps" id="steps"></div>
+        <div class="frame" id="frame"><iframe id="ifr" title="Captured page"></iframe><div class="ov" id="ov"></div></div>
+        <div class="legend">Red box = DarkLens detection · dashed green = ground truth. Use ← → keys to move between pages. “Reload page” lets you see a fake countdown restart.</div>
+      </div>
+      <div class="panel">
+        <div class="card"><h3 id="pTitle">Findings on this page</h3><div id="pf"></div></div>
+        <div class="card"><h3>Journey-level findings <span class="legend">(comparing all pages)</span></h3><div id="jf"></div>
+          <div class="legend" style="margin-top:8px">Which pages the temporal transformer compared (attention):</div><div class="attn" id="attn"></div></div>
+        <div class="card"><h3>Patterns hidden in this journey</h3><div id="truth"></div></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="data.js"></script>
+<script>
+const D = window.DL, N = D.names;
+const $ = id => document.getElementById(id);
+const bySite = {}; D.journeys.forEach(j => (bySite[j.site] ||= []).push(j));
+const stepNames = {purchase: ["Product", "Cart", "Add-ons", "Payment"], subscription: ["Plans", "Trial checkout", "Account", "Cancel", "Outcome"]};
+let cur = {site: null, j: null, k: 0, showDet: true, showGt: false};
+$("hScr").textContent = D.summary.full.scr.toFixed(3); $("hFlow").textContent = D.summary.full.flow.toFixed(3);
+
+function judge(j) {
+  // screen-level: (state, code) pairs; flow-level: codes
+  const gtS = new Set(j.gt.map(g => g.state + "|" + g.code));
+  const det = j.findings;
+  let tp = 0, fp = 0, fn = 0;
+  const detS = new Set(det.filter(f => f.level === "screen" && D.screen.includes(f.code)).map(f => f.state + "|" + f.code));
+  detS.forEach(x => gtS.has(x) ? tp++ : fp++); gtS.forEach(x => detS.has(x) || fn++);
+  const detF = new Set(det.filter(f => f.level === "flow").map(f => f.code));
+  detF.forEach(c => j.flow.includes(c) ? tp++ : fp++); j.flow.forEach(c => detF.has(c) || fn++);
+  return {tp, fp, fn, perfect: fp === 0 && fn === 0};
+}
+D.journeys.forEach(j => j.r = judge(j));
+function siteStats(id) {
+  const js = bySite[id]; const s = {tp: 0, fp: 0, fn: 0, perfect: 0, n: js.length, pats: 0};
+  js.forEach(j => { s.tp += j.r.tp; s.fp += j.r.fp; s.fn += j.r.fn; s.perfect += j.r.perfect; s.pats += j.injected.length; });
+  s.f1 = s.tp ? 2 * s.tp / (2 * s.tp + s.fp + s.fn) : (s.fp + s.fn ? 0 : 1); return s;
+}
+
+// ---------- overview
+function renderOverview() {
+  let tot = {tp: 0, fp: 0, fn: 0, perfect: 0, pats: 0};
+  const rows = D.sites.map((s, i) => { const t = siteStats(s.id); for (const k in tot) tot[k] += t[k]; return [s, t, i]; });
+  $("over").innerHTML = `
+  <div class="kpis">
+    <div class="kpi"><b>30</b><small>test websites</small></div>
+    <div class="kpi"><b>${D.journeys.length}</b><small>user journeys · ${D.journeys.reduce((a, j) => a + j.n, 0).toLocaleString()} pages</small></div>
+    <div class="kpi"><b>${tot.pats}</b><small>dark patterns hidden · ${tot.tp} found</small></div>
+    <div class="kpi"><b>${tot.perfect}/${D.journeys.length}</b><small>journeys with every pattern found and no false alarm</small></div>
+  </div>
+  <table><thead><tr><th>#</th><th>Website</th><th>Theme</th><th>Journeys</th><th>Patterns hidden</th><th>Found</th><th>Missed</th><th>False alarms</th><th>Score (F1)</th></tr></thead>
+  <tbody>${rows.map(([s, t, i]) => `<tr class="click" data-site="${s.id}"><td>${i + 1}</td><td><b>${s.brand}</b></td>
+  <td><span class="dot" style="display:inline-block;vertical-align:middle;background:${s.primary}"></span> <span class="legend">${s.dark ? "dark" : "light"} · ${s.font}</span></td>
+  <td>${t.n}</td><td>${t.pats}</td><td>${t.tp}</td><td>${t.fn}</td><td>${t.fp}</td>
+  <td><span class="bar"><i style="width:${(100 * t.f1).toFixed(0)}%"></i></span> ${t.f1.toFixed(2)}</td></tr>`).join("")}</tbody></table>
+  <div class="legend">Click any website to inspect its journeys page by page.</div>`;
+  document.querySelectorAll("tr.click").forEach(tr => tr.onclick = () => openSite(tr.dataset.site));
+}
+
+// ---------- site list
+function renderSites() {
+  const q = $("q").value.toLowerCase();
+  $("sites").innerHTML = D.sites.filter(s => s.brand.toLowerCase().includes(q)).map(s => {
+    const t = siteStats(s.id);
+    return `<div class="site ${cur.site === s.id ? "on" : ""}" data-site="${s.id}"><span class="dot" style="background:${s.primary}"></span><span class="legend">${+s.id.slice(4) + 1}.</span> ${s.brand}<span class="meta">${t.perfect}/${t.n} ✓</span></div>`;
+  }).join("");
+  document.querySelectorAll(".site").forEach(e => e.onclick = () => openSite(e.dataset.site));
+}
+function openSite(id, jIdx = 0) {
+  cur.site = id; showTab("site");
+  const s = D.sites.find(x => x.id === id), js = bySite[id];
+  $("sTitle").innerHTML = `Site ${+s.id.slice(4) + 1} · ${s.brand} <span class="legend">· ${js.length} journeys · ${s.font} · ${s.dark ? "dark" : "light"} theme</span>`;
+  $("jlist").innerHTML = js.map((j, i) => `<div class="jchip" data-i="${i}">${j.kind === "purchase" ? "🛒" : "🔁"} J${i + 1}
+    ${j.injected.length ? j.injected.map(c => `<span class="code">${c}</span>`).join("") : `<span class="legend">clean</span>`}
+    <span class="${j.r.perfect ? "ok" : "bad"}">${j.r.perfect ? "✓" : "!"}</span></div>`).join("");
+  document.querySelectorAll(".jchip").forEach(e => e.onclick = () => openJourney(js[+e.dataset.i]));
+  renderSites(); openJourney(js[jIdx]);
+}
+function openJourney(j) {
+  cur.j = j; cur.k = 0;
+  document.querySelectorAll(".jchip").forEach((e, i) => e.classList.toggle("on", bySite[cur.site][i] === j));
+  renderJourneyPanels(); showStep(0);
+}
+function showStep(k) {
+  const j = cur.j; cur.k = k;
+  $("steps").innerHTML = stepNames[j.kind].slice(0, j.n).map((n, i) => `<button class="${i === k ? "on" : ""}" data-k="${i}">${i + 1}. ${n}</button>`).join("") +
+    `<span class="spacer"></span><label class="toggle"><input type="checkbox" id="cDet" ${cur.showDet ? "checked" : ""}> Detections</label>
+     <label class="toggle"><input type="checkbox" id="cGt" ${cur.showGt ? "checked" : ""}> Ground truth</label>
+     <button id="reload">↻ Reload page</button>`;
+  document.querySelectorAll("#steps button[data-k]").forEach(b => b.onclick = () => showStep(+b.dataset.k));
+  $("cDet").onchange = e => { cur.showDet = e.target.checked; drawOverlay(); };
+  $("cGt").onchange = e => { cur.showGt = e.target.checked; drawOverlay(); };
+  $("reload").onclick = () => { $("ifr").src = $("ifr").src; };
+  $("ifr").src = `sites/${j.id}/s${k}.html`;
+  fit(); drawOverlay(); renderPageFindings();
+}
+function fit() {
+  const fr = $("frame"); const w = fr.parentElement.clientWidth - 20; const sc = Math.min(1, w / 1280);
+  fr.style.width = (1280 * sc) + "px"; fr.style.height = (900 * sc) + "px";
+  [$("ifr"), $("ov")].forEach(e => e.style.transform = `scale(${sc})`);
+}
+function drawOverlay() {
+  const j = cur.j, k = cur.k; let h = "";
+  if (cur.showGt) j.gt.filter(g => g.state === k).forEach(g => h += box(g.box, "Hidden: " + N[g.code], "gt"));
+  if (cur.showDet) j.findings.filter(f => f.level === "screen" && f.state === k).forEach(f => h += box(f.box, `${f.category} · ${f.severity}`, ""));
+  $("ov").innerHTML = h;
+}
+const box = (b, t, c) => `<div class="box ${c}" style="left:${b[0] - 4}px;top:${b[1] - 4}px;width:${b[2] + 8}px;height:${b[3] + 8}px"><span>${t}</span></div>`;
+function fcard(f, cls = "") {
+  const ok = f.level === "flow" ? cur.j.flow.includes(f.code) : cur.j.gt.some(g => g.state === f.state && g.code === f.code);
+  const verdict = f.level === "screen" && !D.screen.includes(f.code) ? "" : `<span class="verdict ${ok ? "ok" : "bad"}">${ok ? "✔ correct" : "✘ false alarm"}</span>`;
+  return `<div class="f ${cls}"><div class="top"><span class="name">${f.category}</span><span class="sev ${f.severity}">${f.severity}</span>
+    <span class="legend">score ${f.score.toFixed(2)}${f.abstain ? " · sent for human review" : ""}</span>${verdict}</div>
+    <div class="why">${f.rationale.replace(/\s*\(CCPA.*\)$/, "")}</div><div class="cl">CCPA Dark Patterns Guidelines 2023 · ${f.clause}</div></div>`;
+}
+function renderPageFindings() {
+  const j = cur.j, k = cur.k;
+  $("pTitle").textContent = `Findings on page ${k + 1} (${stepNames[j.kind][k]})`;
+  const fs = j.findings.filter(f => f.level === "screen" && f.state === k);
+  const missed = j.gt.filter(g => g.state === k && !fs.some(f => f.code === g.code));
+  $("pf").innerHTML = (fs.map(f => fcard(f)).join("") +
+    missed.map(g => `<div class="f miss"><div class="top"><span class="name">${N[g.code]}</span><span class="verdict bad">missed</span></div></div>`).join(""))
+    || `<div class="empty">No dark pattern detected on this page.</div>`;
+}
+function renderJourneyPanels() {
+  const j = cur.j;
+  const fl = j.findings.filter(f => f.level === "flow");
+  const missed = j.flow.filter(c => !fl.some(f => f.code === c));
+  $("jf").innerHTML = (fl.map(f => fcard(f, "flow")).join("") +
+    missed.map(c => `<div class="f miss"><div class="top"><span class="name">${N[c]}</span><span class="verdict bad">missed</span></div></div>`).join(""))
+    || `<div class="empty">No journey-level pattern detected.</div>`;
+  const A = j.attn, n = A.length, mx = Math.max(...A.flat());
+  $("attn").style.gridTemplateColumns = `40px repeat(${n},1fr)`;
+  $("attn").innerHTML = `<div></div>` + A[0].map((_, c) => `<div><b>P${c + 1}</b></div>`).join("") +
+    A.map((r, i) => `<div><b>P${i + 1}</b></div>` + r.map(v => `<div style="background:rgba(107,70,193,${(v / mx).toFixed(2)});color:${v / mx > .55 ? "#fff" : "#1b2430"}">${v.toFixed(2)}</div>`).join("")).join("");
+  $("truth").innerHTML = j.injected.length ? j.injected.map(c => `<div style="font-size:13px;margin:3px 0"><span class="code">${c}</span> ${N[c]} <span class="legend">· ${D.flow.includes(c) ? "across pages" : "on one page"}</span></div>`).join("")
+    : `<div class="empty">This is a clean journey: no dark pattern was hidden in it.</div>`;
+}
+function showTab(t) {
+  $("tOver").classList.toggle("on", t === "over"); $("tSite").classList.toggle("on", t === "site");
+  $("over").classList.toggle("hidden", t !== "over"); $("insp").classList.toggle("hidden", t !== "site"); $("aside").classList.toggle("hidden", t !== "site");
+  if (t === "site") setTimeout(() => { fit(); }, 0);
+}
+$("tOver").onclick = () => showTab("over");
+$("tSite").onclick = () => openSite(cur.site || D.sites[0].id);
+$("q").oninput = renderSites;
+window.onresize = () => cur.j && fit();
+document.onkeydown = e => {
+  if (!cur.j || $("insp").classList.contains("hidden")) return;
+  if (e.key === "ArrowRight" && cur.k < cur.j.n - 1) showStep(cur.k + 1);
+  if (e.key === "ArrowLeft" && cur.k > 0) showStep(cur.k - 1);
+};
+renderOverview();
+</script>
+</body>
+</html>
